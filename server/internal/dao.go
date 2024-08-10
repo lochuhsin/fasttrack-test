@@ -90,26 +90,38 @@ func GetSubmitRecord() *SubmitRecord {
 	return submitR
 }
 
-type question struct {
-	Q       *string  `yaml:"q"`
-	A       *int     `yaml:"a"`
+type entry struct {
+	Q       string   `yaml:"q"`
+	A       int      `yaml:"a"`
 	Options []string `yaml:"options"`
 }
 
 type QuestionDatabase struct {
-	Questions []question `yaml:"questions"`
+	Entries []entry `yaml:"questions"`
 }
 
-func (q QuestionDatabase) List(limit, offset int) ([]question, bool) {
-	if offset >= len(q.Questions) {
+func (q QuestionDatabase) List(limit, offset int) ([]entry, bool) {
+	if limit == -1 && offset == -1 {
+		return q.Entries, true
+	}
+	if offset >= len(q.Entries) {
 		return nil, false
 	}
-	return q.Questions[offset : offset+limit], true
+	if limit < 0 || offset < 0 {
+		return nil, false
+	}
+	if offset+limit > len(q.Entries) {
+		return q.Entries[offset:len(q.Entries)], true
+	}
+	return q.Entries[offset : offset+limit], true
 }
 
-func newQuestionDatabase(questions []question) *QuestionDatabase {
+func (q QuestionDatabase) Count() int {
+	return len(q.Entries)
+}
+func newQuestionDatabase(questions []entry) *QuestionDatabase {
 	return &QuestionDatabase{
-		Questions: questions,
+		Entries: questions,
 	}
 }
 
@@ -140,17 +152,17 @@ func InitQuestionDatabase() {
 }
 
 func validateFile(db QuestionDatabase) error {
-	if db.Questions == nil {
+	if db.Entries == nil {
 		return fmt.Errorf("missing key or empty questions")
 	}
-	for _, q := range db.Questions {
-		if q.A == nil || q.Q == nil || q.Options == nil {
+	for _, q := range db.Entries {
+		if q.Options == nil {
 			return fmt.Errorf("error parsing yml, missing q, a or options")
-		}
-
-		if *q.A < 0 || *q.A >= len(q.Options) {
-			return fmt.Errorf("Invalid answer index")
 		}
 	}
 	return nil
+}
+
+func GetQuestionDatabase() *QuestionDatabase {
+	return questionD
 }
