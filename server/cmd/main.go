@@ -9,6 +9,7 @@ import (
 )
 
 func Init() {
+	internal.InitQuestionDatabase()
 	internal.InitUserGroup()
 	internal.InitSubmitRecord()
 }
