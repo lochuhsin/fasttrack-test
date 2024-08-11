@@ -1,12 +1,15 @@
-.PHONY: run-server
-run-server:
-	go build -o app server/cmd/main.go && ./app
-
 .PHONY: build-server
 build-server:
-	go build -o app server/cmd/main.go
-
+	cd server && make build-server
 
 .PHONY: build-server-race
 build-server-race:
-	go build -race -o app server/cmd/main.go 
+	cd server && make build-server-race
+
+.PHONY: run-server
+run-server:
+	cd server && make run-server
+
+.PHONY: install-cli
+install-cli:
+	cd cli && make install

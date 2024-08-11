@@ -1,8 +1,10 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
-	"fasttrack-test/server/internal"
+	"fasttrack-server/internal"
+	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -152,15 +154,47 @@ func createRecord(resp http.ResponseWriter, req *http.Request) {
 	 *
 	 * think the design of concurrency
 	 */
+	questions, _ := internal.GetQuestionDatabase().List(-1, -1)
+	count := 0
+	for _, answer := range payload.Answers {
+		qIndex, ans := answer.QuestionId, answer.Answer
+		if questions[*qIndex].A == *ans {
+			count++
+		}
+
+	}
 
 	// Maybe provide something like create or update ?
 	// Not sure if we need to abstract this layer, maybe refactor it ?
-	ok = internal.GetSubmitRecord().Create(*payload.Name, 10)
+	ok = internal.GetRecords().Create(*payload.Name, count)
 	if !ok {
 		resp.WriteHeader(http.StatusConflict)
 		resp.Write(RequestError{Msg: "Record from this user was created"}.Bytes())
 		return
 	}
+
 	resp.WriteHeader(http.StatusCreated)
-	resp.Write([]byte("ok!"))
+	resp.Write([]byte(fmt.Sprintf("You scored %v out of %v problems correctly", count, internal.GetQuestionDatabase().Count())))
+}
+
+func getPercentile(resp http.ResponseWriter, req *http.Request) {
+	query := req.URL.Query()
+	if len(query["name"]) == 0 {
+		resp.WriteHeader(http.StatusBadRequest)
+		resp.Write(RequestError{Msg: "missing name query"}.Bytes())
+		return
+	}
+
+	val, ok := internal.GetRecords().GetPercentile(query["name"][0])
+	if !ok {
+		resp.WriteHeader(http.StatusBadRequest)
+		resp.Write(RequestError{Msg: "wrong name"}.Bytes())
+		return
+	}
+	var builder bytes.Buffer
+	builder.WriteString("You were better than ")
+	builder.WriteString(strconv.Itoa(val * 100))
+	builder.WriteString("% of all quizzers")
+	resp.WriteHeader(http.StatusOK)
+	resp.Write(builder.Bytes())
 }

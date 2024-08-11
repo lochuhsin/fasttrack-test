@@ -13,7 +13,7 @@ const DEFAULT_QUESTION_FILE_PATH = "question.yaml"
 var (
 	userG     *UserGroup
 	uOnce     sync.Once = sync.Once{}
-	submitR   *SubmitRecord
+	submitR   *Records
 	sOnce     sync.Once = sync.Once{}
 	questionD *QuestionDatabase
 	qOnce     sync.Once = sync.Once{}
@@ -52,17 +52,17 @@ func GetUserGroup() *UserGroup {
 	return userG
 }
 
-type SubmitRecord struct {
+type Records struct {
 	record sync.Map
 	mu     sync.Mutex
 }
 
-func (s *SubmitRecord) Create(name string, value int) bool {
+func (s *Records) Create(name string, value int) bool {
 	_, loaded := s.record.LoadOrStore(name, value)
 	return !loaded
 }
 
-func (s *SubmitRecord) Update(name string, value int) bool {
+func (s *Records) Update(name string, value int) bool {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	val, ok := s.record.Load(name)
@@ -73,20 +73,40 @@ func (s *SubmitRecord) Update(name string, value int) bool {
 	return true
 }
 
-func newSubmitRecord() *SubmitRecord {
-	return &SubmitRecord{
+func (s *Records) GetPercentile(name string) (int, bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	val, ok := s.record.Load(name)
+	if !ok {
+		return 0, false
+	}
+
+	score := val.(int)
+	total, less := 0, 0
+	s.record.Range(func(key, value any) bool {
+		if value.(int) <= score {
+			less++
+		}
+		total++
+		return true
+	})
+	return less / total, true
+}
+
+func newRecords() *Records {
+	return &Records{
 		record: sync.Map{},
 		mu:     sync.Mutex{},
 	}
 }
 
-func InitSubmitRecord() {
+func InitRecords() {
 	sOnce.Do(func() {
-		submitR = newSubmitRecord()
+		submitR = newRecords()
 	})
 }
 
-func GetSubmitRecord() *SubmitRecord {
+func GetRecords() *Records {
 	return submitR
 }
 

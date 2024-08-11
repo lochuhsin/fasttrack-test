@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fasttrack-test/server/api"
-	"fasttrack-test/server/internal"
+	"fasttrack-server/api"
+	"fasttrack-server/internal"
 	"net/http"
 
 	log "github.com/sirupsen/logrus"
@@ -11,7 +11,7 @@ import (
 func Init() {
 	internal.InitQuestionDatabase()
 	internal.InitUserGroup()
-	internal.InitSubmitRecord()
+	internal.InitRecords()
 }
 
 func main() {
@@ -21,7 +21,7 @@ func main() {
 	Init()
 	mux := http.NewServeMux()
 	api.Register(mux)
-	log.Info("Running server ...")
+	log.Info("Running server ... on 8000")
 	http.ListenAndServe(":8000", mux)
 
 }
