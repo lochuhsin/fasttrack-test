@@ -193,7 +193,7 @@ func getPercentile(resp http.ResponseWriter, req *http.Request) {
 	}
 	var builder bytes.Buffer
 	builder.WriteString("You were better than ")
-	builder.WriteString(strconv.Itoa(val * 100))
+	builder.WriteString(strconv.Itoa(val))
 	builder.WriteString("% of all quizzers")
 	resp.WriteHeader(http.StatusOK)
 	resp.Write(builder.Bytes())

@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"sync"
 
@@ -90,7 +91,7 @@ func (s *Records) GetPercentile(name string) (int, bool) {
 		total++
 		return true
 	})
-	return less / total, true
+	return int(math.Floor(float64(less) * 100 / float64(total))), true
 }
 
 func newRecords() *Records {

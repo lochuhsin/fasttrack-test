@@ -7,9 +7,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var start = &cobra.Command{
-	Use:     "start",
-	Aliases: []string{"c", "-c"},
+var test = &cobra.Command{
+	Use:     "test",
+	Aliases: []string{"t", "-t"},
 	Short:   "start answering questions",
 	Long:    "with one external argument which defines the user name",
 	Args:    cobra.MaximumNArgs(1),
@@ -47,5 +47,5 @@ var start = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(start)
+	rootCmd.AddCommand(test)
 }
