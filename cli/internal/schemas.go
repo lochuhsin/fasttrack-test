@@ -5,9 +5,6 @@ type question struct {
 	Options []string `json:"options"`
 }
 
-/**
- * TODO: Handle pagination ?
- */
 type questionResponse struct {
 	Questions []question `json:"questions"`
 	Next      *int       `json:"next"`

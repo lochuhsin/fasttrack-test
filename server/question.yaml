@@ -11,7 +11,7 @@ questions:
     a: 2
     options:
       - "John Cena"
-      - "President Chi"
+      - "President Obama"
       - "I have no idea lol"
   
   - q: "1+1 = ?"
