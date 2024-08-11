@@ -13,11 +13,11 @@ const DEFAULT_QUESTION_FILE_PATH = "question.yaml"
 
 var (
 	userG     *UserGroup
-	uOnce     sync.Once = sync.Once{}
+	uOnce     sync.Once
 	submitR   *Records
-	sOnce     sync.Once = sync.Once{}
+	sOnce     sync.Once
 	questionD *QuestionDatabase
-	qOnce     sync.Once = sync.Once{}
+	qOnce     sync.Once
 )
 
 type UserGroup struct {
